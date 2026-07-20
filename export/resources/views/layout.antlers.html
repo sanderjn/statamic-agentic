@@ -8,6 +8,16 @@
         {{ vite src="resources/css/site.css" }}
     </head>
     <body class="antialiased">
+        {{# The menu is a Statamic navigation (content/trees/navigation/main.yaml),
+            so the content editor can add, remove, and reorder items — it is content,
+            not code. Add pages to it there; never hard-code links here. #}}
+        <header class="border-b border-gray-200">
+            <nav class="mx-auto max-w-3xl px-6 py-4 flex gap-6 text-sm font-medium">
+                {{ nav:main }}
+                    <a href="{{ url }}" class="hover:text-gray-500">{{ title }}</a>
+                {{ /nav:main }}
+            </nav>
+        </header>
         <main class="mx-auto max-w-3xl px-6 py-12">
             {{ template_content }}
         </main>
