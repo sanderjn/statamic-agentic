@@ -1,0 +1,28 @@
+name: CI
+
+on:
+  push:
+  pull_request:
+
+# Tests the kit's own guardrail machinery (the commands, the validator, the
+# path allowlist). The content-guardrails workflow shipped in export/ runs in
+# the installed sites; this one runs in this repo.
+jobs:
+  test:
+    name: Guardrail tests
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Setup PHP
+        uses: shivammathur/setup-php@v2
+        with:
+          php-version: "8.3"
+          extensions: gd, exif
+      - name: Install dependencies
+        run: composer install --no-interaction --prefer-dist --no-progress
+      - name: Path allowlist
+        run: bash tests/allowlist.test.sh
+      - name: Code style
+        run: vendor/bin/pint --test export/app tests
+      - name: PHPUnit
+        run: vendor/bin/phpunit
