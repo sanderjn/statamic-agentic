@@ -28,6 +28,11 @@ plain text, so an agent can edit that content directly. Two things make it trust
   its fields, types, and allowed options. The agent reads this before adding content, so it never
   invents a block or field that doesn't exist. It's regenerated from your fieldsets by
   `php artisan content:catalog`, so it can never drift from what the site actually supports.
+- **`content/editor-notes.md`** — the editor's **own** space: tone of voice, writing do's and don'ts,
+  recurring page structures, sign-off. The first time an editor works with the agent it offers to fill
+  this in (a short interview — or run `/setup` in Claude Code), then reads it before every edit so the
+  copy always sounds the way they want. Unlike the brief and the catalogue, this file *is* editable by
+  the agent — it's the client's preferences, not the rules. The agent can never rewrite its own brief.
 
 ### What catches mistakes
 
@@ -35,9 +40,10 @@ Statamic does **not** validate flat-file content when it loads — a malformed e
 blank, silently. That's the gap Agentic closes:
 
 - **`php artisan content:validate`** walks every entry, term, and global against its blueprint and
-  fails on anything the Control Panel would never allow: an unknown block type, an invalid select
-  option, a reference to a missing image, or a block with no matching template. The agent runs it
-  before every commit; CI runs it again.
+  fails on anything the Control Panel would never allow: a missing required field, a value past its
+  length limit, an unknown block type, an invalid select option, a reference to a missing image, or a
+  block with no matching template. (It runs the blueprint's real validation rules, exactly as a
+  Control Panel save would.) The agent runs it before every commit; CI runs it again.
 
 ### What stops it going off the rails
 
@@ -47,13 +53,17 @@ Guardrails at two levels — one for smooth UX, one that's the actual guarantee:
   `config/`, `resources/`, dependencies, and CI at all, so it self-corrects instead of trying a
   workaround.
 - **CI (the guarantee):** `.github/workflows/content-guardrails.yml` enforces, on GitHub's side:
-  - client commits may touch **only** content and assets (a path allowlist keyed to the editor's git
-    identity — your own commits are never restricted);
+  - every commit on the work branch may touch **only** content and assets — *unless* it's authored by
+    a maintainer. It's default-deny: the agent's edits are held to the content allowlist whatever git
+    identity they carry, and only the maintainer's own commits are exempt;
   - only the **maintainer** can land changes on the production branch;
-  - every push runs `content:validate`, a catalogue-freshness check, a build, and the test suite.
+  - every push runs `content:validate`, a catalogue-freshness check, a build, and a code-style check.
 
   So even if the agent goes rogue or someone hand-edits a file, a code-touching or schema-invalid
   change can't land cleanly on the working branch and can't reach production.
+
+The guardrail machinery itself (the commands, the validator, the path allowlist) is covered by the
+kit's own test suite — see `tests/` and `.github/workflows/ci.yml`.
 
 ### How changes go live
 
@@ -108,8 +118,9 @@ Create a new site from the kit:
 After install, follow **`SETUP.md`** at the project root. It's a short, ordered checklist:
 run `php artisan agentic:setup` (stamps your site name, editors, maintainer, and branches into the
 docs and CI), create the GitHub repo with `staging`/`main` branches, turn on branch protection, and
-point your host at the branches. Then run your agent from the project root and let
-`content/AGENTS.md` guide it.
+point your host at the branches. Then run your agent from the project root: the shipped root
+`CLAUDE.md` imports `content/AGENTS.md`, so Claude Code picks up the content-editor brief
+automatically (other agents: point them at `content/AGENTS.md` yourself).
 
 ## Requirements & notes
 

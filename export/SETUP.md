@@ -7,8 +7,10 @@ these once, in order.
 
     php artisan agentic:setup
 
-This stamps your site name, description, editor git emails, maintainer, and branch names into
-`content/AGENTS.md` and the CI workflow. Re-run it any time; it is idempotent. Commit the result.
+This stamps your site name, description, maintainer (GitHub username + git emails), and branch names
+into `content/AGENTS.md` and the CI workflow. The maintainer emails matter: CI holds every commit that
+*isn't* a maintainer's to the content-only allowlist, so the agent's edits are guarded whatever git
+identity they carry. Re-run it any time; it is idempotent. Commit the result.
 
 ## 2. Create the GitHub repo + branches
 
@@ -39,6 +41,12 @@ Agentic does not configure a host. Point your platform at the branches:
   environment and `main` for production. Enable auto-deploy.
 - **Vapor:** environments `staging` and `production` tracking those branches.
 - **SSG (Netlify/static):** build on push to each branch.
+
+**Whatever the host, rebuild the content index on every deploy.** Statamic caches a flat-file index
+(the "Stache"); after a deploy it can be stale, so new pages and menu changes won't show up until it's
+rebuilt. Add this to your deploy hook, after the new code is in place:
+
+    php artisan statamic:stache:refresh
 
 ## 5. Start editing
 
