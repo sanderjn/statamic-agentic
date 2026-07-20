@@ -11,7 +11,7 @@ class AgenticSetup extends Command
 {
     protected $signature = 'agentic:setup
         {--site-name=} {--site-description=}
-        {--client-emails=} {--maintainer=}
+        {--maintainer=} {--maintainer-emails=}
         {--work-branch=} {--release-branch=}';
 
     protected $description = 'Stamp this project\'s details into the agentic content-editing files (idempotent).';
@@ -33,8 +33,8 @@ class AgenticSetup extends Command
 
         $siteName = $this->answer('site-name', 'Site name', 'My Website');
         $siteDescription = $this->answer('site-description', 'One or two sentences describing the site', 'A website.');
-        $clientEmails = $this->answer('client-emails', 'Content-editor git emails (space-separated)', '');
         $maintainer = $this->answer('maintainer', 'Maintainer GitHub username (only they may land on the release branch)', '');
+        $maintainerEmails = $this->answer('maintainer-emails', 'Maintainer git emails (space-separated) — commits from anyone else are held to content-only', '');
         $work = $this->answer('work-branch', 'Work branch (day-to-day edits)', config('agentic.branches.work'));
         $release = $this->answer('release-branch', 'Release branch (production)', config('agentic.branches.release'));
 
@@ -54,7 +54,7 @@ class AgenticSetup extends Command
         }
 
         $ciVars = [
-            'CLIENT_EMAILS' => [$clientEmails, 'agentic:client_emails'],
+            'MAINTAINER_EMAILS' => [$maintainerEmails, 'agentic:maintainer_emails'],
             'MAINTAINERS' => [$maintainer, 'agentic:maintainers'],
         ];
         foreach ($ciVars as $var => [$value, $marker]) {
