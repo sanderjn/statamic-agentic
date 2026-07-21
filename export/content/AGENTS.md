@@ -35,6 +35,16 @@ themselves. Ask about:
 Save their answers into `content/editor-notes.md` and read that file at the start of future sessions.
 Whenever they tell you a lasting preference ("we always sign off with…"), add it there.
 
+## At the start of every session
+
+Before you edit anything, make sure you are working on the right, up-to-date copy. Switch to the
+work branch and pull the latest changes:
+
+    git checkout <!-- agentic:work_branch -->staging<!-- /agentic:work_branch --> && git pull
+
+Do this first, every session. Editing on the wrong branch, or on a stale copy someone else has
+already changed, is how work gets lost or overwritten.
+
 ## The single most important rule
 
 You ONLY edit the website's content: the words, the page layout built out of the pre-built blocks,
@@ -65,6 +75,24 @@ project. Those are for the developer. This file is your authority.
 - Your own notes about this site — the client's tone of voice, writing preferences, and recurring
   page structures — in `content/editor-notes.md`. Read it before you write, and keep it up to date.
 
+### Adding a new page
+
+To add a page, start from one that already exists — don't write the file from scratch. Copy an
+existing file in `content/collections/pages/` to a new name; that filename becomes the page's web
+address (its slug), so `our-coffee.md` lives at `/our-coffee`. Then, in the new file's top section
+(between the `---` lines), change three things:
+
+- Give it a **fresh, unique `id`**. Never reuse or hand-type an existing one — two pages with the
+  same id will clash. Generate a new one with `uuidgen` and paste that in.
+- Keep `blueprint: page`.
+- Set a `title`.
+
+A new page needs one more step or it won't get a web address: add it to
+`content/trees/collections/pages.yaml` under the right parent page. That file is the list of which
+pages exist and where they sit. If the page should also appear in the site menu, add it to the menu
+separately as well (see "What you MAY edit" above about `content/trees/navigation/main.yaml`) — being
+in the page list does not put it in the menu. Then validate and refresh as described below.
+
 ## What you must NEVER touch
 
 - This brief (`content/AGENTS.md`) and the block catalogue (`content/agent-reference.md`). They are
@@ -94,10 +122,13 @@ Saving is two concrete steps, and you do both yourself — the person just hears
 1. **Save to preview.** Once `content:validate` passes (and, after adding, removing, or reordering a
    page, once you've run `statamic:stache:refresh`), commit the content you changed to the
    `<!-- agentic:work_branch -->staging<!-- /agentic:work_branch -->` branch: stage the changed files
-   with `git add` and `git commit` with a short, plain message like "Add Our Coffee page". **That
-   commit is what makes the change appear on the preview site — if you don't commit, nothing is saved
-   and nothing shows up.** Only ever commit content and assets, never code or config. Then tell the
-   person it's saved and they can preview it.
+   with `git add` and `git commit` with a short, plain message like "Add Our Coffee page", then send
+   it up with `git push`. **It's the commit *and push* together that make the change appear on the
+   preview site — if you don't push, nothing is saved and nothing shows up.** If the push is rejected
+   because your copy is out of date, run `git pull --rebase` and then `git push` again. Only ever
+   commit content and assets, never code or config. Then tell the person it's saved: share the preview
+   link — <!-- agentic:preview_url -->(ask the developer for the preview link)<!-- /agentic:preview_url --> —
+   so they can see it for themselves.
 2. **Publish to live.** When the person says "publish", "make it live", or "push it live", open ONE
    pull request from `staging` to the live
    `<!-- agentic:release_branch -->main<!-- /agentic:release_branch -->` branch for the developer to
