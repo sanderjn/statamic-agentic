@@ -40,6 +40,11 @@ Day-to-day agent edits go on `staging`; `main` is production.
 The shipped CI (`.github/workflows/content-guardrails.yml`) enforces content-only client commits and
 maintainer-only `main` as a backstop, but GitHub branch protection is the real gate.
 
+An honest caveat: GitHub only offers branch protection on private repos with a paid plan (Pro or an
+organization); on a free personal account it needs a public repo. Without protection, nothing
+enforces the required check or blocks direct pushes to `main`: the CI `guard-release` job plus your
+own review discipline are the only gate.
+
 ## 4. Deploy (your choice)
 
 Agentic does not configure a host. Point your platform at the branches:

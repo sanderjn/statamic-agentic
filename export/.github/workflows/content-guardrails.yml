@@ -71,7 +71,7 @@ jobs:
       - name: Setup PHP
         uses: shivammathur/setup-php@v2
         with:
-          php-version: "8.3"
+          php-version: "8.4" # must be at least the PHP version that built the site's composer.lock
           extensions: gd, exif
       - name: Setup Node
         uses: actions/setup-node@v4
