@@ -56,5 +56,26 @@ for p in \
   check 1 "$p"
 done
 
+# The PreToolUse adapter (guard-content-edits.sh) unwraps the hook JSON and
+# feeds the path through the same allowlist: exit 0 allowed, exit 2 blocked.
+adapter="$(cd "$(dirname "$0")/.." && pwd)/export/.claude/hooks/guard-content-edits.sh"
+export CLAUDE_PROJECT_DIR="$(cd "$(dirname "$0")/.." && pwd)/export"
+
+check_adapter() {
+  local expected="$1" path="$2"
+  printf '{"tool_input":{"file_path":"%s"}}' "$path" | bash "$adapter" >/dev/null 2>&1
+  local actual=$?
+  if [ "$actual" -eq "$expected" ]; then
+    pass=$((pass + 1))
+  else
+    fail=$((fail + 1))
+    echo "FAIL (adapter): '$path' expected exit $expected, got $actual"
+  fi
+}
+
+check_adapter 0 "content/collections/pages/about.md"
+check_adapter 2 "app/Something.php"
+check_adapter 2 "content/AGENTS.md"
+
 echo "allowlist: $pass passed, $fail failed"
 [ "$fail" -eq 0 ]

@@ -1,22 +1,32 @@
 {
   "permissions": {
-    "deny": [
-      "Edit(app/**)",
-      "Edit(config/**)",
-      "Edit(resources/**)",
-      "Edit(routes/**)",
-      "Edit(database/**)",
-      "Edit(bootstrap/**)",
-      "Edit(.github/**)",
-      "Edit(content/collections/*.yaml)",
-      "Edit(content/AGENTS.md)",
-      "Edit(content/agent-reference.md)",
-      "Edit(composer.json)",
-      "Edit(composer.lock)",
-      "Edit(package.json)",
-      "Edit(package-lock.json)",
-      "Edit(vite.config.js)",
-      "Edit(CLAUDE.md)"
+    "allow": [
+      "Bash(php artisan content:validate)",
+      "Bash(php artisan content:catalog)",
+      "Bash(php artisan statamic:stache:refresh)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git pull)",
+      "Bash(git push)",
+      "Bash(git checkout staging)",
+      "Bash(git switch staging)",
+      "Bash(gh pr create:*)"
+    ]
+  },
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "Edit|Write|MultiEdit|NotebookEdit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "$CLAUDE_PROJECT_DIR/.claude/hooks/guard-content-edits.sh"
+          }
+        ]
+      }
     ]
   }
 }
