@@ -10,7 +10,7 @@ use function Laravel\Prompts\text;
 class AgenticSetup extends Command
 {
     protected $signature = 'agentic:setup
-        {--site-name=} {--site-description=}
+        {--site-name=} {--site-description=} {--preview-url=}
         {--maintainer=} {--maintainer-emails=}
         {--work-branch=} {--release-branch=}';
 
@@ -33,6 +33,7 @@ class AgenticSetup extends Command
 
         $siteName = $this->answer('site-name', 'Site name', 'My Website');
         $siteDescription = $this->answer('site-description', 'One or two sentences describing the site', 'A website.');
+        $previewUrl = $this->answer('preview-url', 'Preview site URL (where the work branch deploys; leave empty to keep the current value)', '');
         $maintainer = $this->answer('maintainer', 'Maintainer GitHub username (only they may land on the release branch)', '');
         $maintainerEmails = $this->answer('maintainer-emails', 'Maintainer git emails (space-separated) — commits from anyone else are held to content-only', '');
         $work = $this->answer('work-branch', 'Work branch (day-to-day edits)', config('agentic.branches.work'));
@@ -40,12 +41,21 @@ class AgenticSetup extends Command
 
         $missed = [];
 
-        $markerCounts = $this->stampMarkers($agentsPath, [
+        $markers = [
             'site_name' => $siteName,
             'site_description' => $siteDescription,
+            'preview_url' => $previewUrl,
             'work_branch' => $work,
             'release_branch' => $release,
-        ]);
+        ];
+
+        // An empty preview URL means "keep whatever the marker already says" —
+        // skip it entirely rather than blanking the sentence in AGENTS.md.
+        if ($previewUrl === '') {
+            unset($markers['preview_url']);
+        }
+
+        $markerCounts = $this->stampMarkers($agentsPath, $markers);
         foreach ($markerCounts as $key => $count) {
             if ($count === 0) {
                 $missed[] = $key;

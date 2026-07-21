@@ -3,8 +3,8 @@
 # exits 0 for editable content/asset paths, non-zero otherwise. The CI
 # path-allowlist job pipes every changed file through this script, and the kit's
 # test suite exercises it directly, so the rule lives in exactly one place. The
-# settings.json deny rules mirror it as a local-editor nudge; a developer can
-# also wire this into a Claude Code PreToolUse hook for live enforcement.
+# local Claude Code PreToolUse hook (guard-content-edits.sh) also pipes each
+# edited path through here for live enforcement on the editor's machine.
 set -euo pipefail
 read -r file || true
 case "$file" in

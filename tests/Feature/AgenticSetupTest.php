@@ -34,11 +34,12 @@ class AgenticSetupTest extends TestCase
         parent::tearDown();
     }
 
-    private function stamp(string $name, string $maintainer, string $emails): void
+    private function stamp(string $name, string $maintainer, string $emails, string $previewUrl = 'https://preview.test'): void
     {
         $this->artisan('agentic:setup', [
             '--site-name' => $name,
             '--site-description' => 'A test site.',
+            '--preview-url' => $previewUrl,
             '--maintainer' => $maintainer,
             '--maintainer-emails' => $emails,
             '--work-branch' => 'staging',
@@ -48,20 +49,21 @@ class AgenticSetupTest extends TestCase
 
     public function test_it_stamps_the_docs_and_ci(): void
     {
-        $this->stamp('Acme Co', 'octocat', 'dev@acme.test');
+        $this->stamp('Acme Co', 'octocat', 'dev@acme.test', 'https://preview.acme.test');
 
         $agents = File::get($this->agentsPath);
         $ci = File::get($this->ciPath);
 
         $this->assertStringContainsString('<!-- agentic:site_name -->Acme Co<!-- /agentic:site_name -->', $agents);
+        $this->assertStringContainsString('<!-- agentic:preview_url -->https://preview.acme.test<!-- /agentic:preview_url -->', $agents);
         $this->assertStringContainsString('MAINTAINER_EMAILS: "dev@acme.test"', $ci);
         $this->assertStringContainsString('MAINTAINERS: "octocat"', $ci);
     }
 
     public function test_it_is_idempotent(): void
     {
-        $this->stamp('First Name', 'octocat', 'dev@acme.test');
-        $this->stamp('Second Name', 'hubot', 'ops@acme.test');
+        $this->stamp('First Name', 'octocat', 'dev@acme.test', 'https://first.test');
+        $this->stamp('Second Name', 'hubot', 'ops@acme.test', 'https://second.test');
 
         $agents = File::get($this->agentsPath);
         $ci = File::get($this->ciPath);
@@ -69,8 +71,20 @@ class AgenticSetupTest extends TestCase
         // Re-running replaces the value rather than duplicating markers.
         $this->assertStringContainsString('<!-- agentic:site_name -->Second Name<!-- /agentic:site_name -->', $agents);
         $this->assertStringNotContainsString('First Name', $agents);
+        $this->assertStringContainsString('<!-- agentic:preview_url -->https://second.test<!-- /agentic:preview_url -->', $agents);
+        $this->assertStringNotContainsString('https://first.test', $agents);
         $this->assertSame(1, substr_count($agents, '<!-- agentic:site_name -->'));
         $this->assertStringContainsString('MAINTAINER_EMAILS: "ops@acme.test"', $ci);
         $this->assertStringContainsString('MAINTAINERS: "hubot"', $ci);
+    }
+
+    public function test_an_empty_preview_url_keeps_the_existing_value(): void
+    {
+        $this->stamp('Acme Co', 'octocat', 'dev@acme.test', 'https://preview.acme.test');
+        $this->stamp('Acme Co', 'octocat', 'dev@acme.test', '');
+
+        $agents = File::get($this->agentsPath);
+
+        $this->assertStringContainsString('<!-- agentic:preview_url -->https://preview.acme.test<!-- /agentic:preview_url -->', $agents);
     }
 }
