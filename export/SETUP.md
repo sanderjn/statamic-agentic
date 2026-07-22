@@ -1,7 +1,7 @@
-# Setting up Content Agent
+# Setting up Agentic
 
-Content Agent makes this Statamic site safely editable by an AI agent (Claude Code or similar).
-Follow these once, in order.
+Agentic makes this Statamic site safely editable by an AI agent (Claude Code or similar). Follow
+these once, in order.
 
 ## 1. Fill in your project details
 
@@ -47,7 +47,7 @@ own review discipline are the only gate.
 
 ## 4. Deploy (your choice)
 
-Content Agent does not configure a host. Point your platform at the branches:
+Agentic does not configure a host. Point your platform at the branches:
 
 - **Ploi / Forge:** create a site, connect the repo, set the deploy branch to `staging` for a preview
   environment and `main` for production. Enable auto-deploy.
