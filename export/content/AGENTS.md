@@ -112,8 +112,8 @@ Always run `php artisan content:validate` before you save your changes. If it re
 it before going further. Never commit content that fails validation.
 
 If you added, removed, or reordered pages or menu items, also run `php artisan statamic:stache:refresh`
-so the preview site notices the change — a new page won't show up (and won't validate against the
-menu) until you do.
+before validating — the checks on this computer won't see a new page until you do. (The preview site
+takes care of itself: it refreshes when you push.)
 
 **If `php artisan …` doesn't run on this computer**, this site is set up the light way: the same checks
 run automatically the moment you push, so you don't run them here. Skip the two commands above, save and
