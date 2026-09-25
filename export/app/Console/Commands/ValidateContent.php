@@ -368,7 +368,7 @@ class ValidateContent extends Command
 
         foreach (array_keys($this->flattenSets($field->get('sets', []))) as $setHandle) {
             if (! $this->blockPartialExists($dir, $setHandle)) {
-                $problems[] = "page-builder set '{$setHandle}' has no block partial (expected resources/views/{$dir}/{$setHandle}.antlers.html)";
+                $problems[] = "page-builder set '{$setHandle}' has no block partial (expected resources/views/{$dir}/{$setHandle}.antlers.html or .blade.php)";
             }
         }
 

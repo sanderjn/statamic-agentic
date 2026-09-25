@@ -120,4 +120,22 @@ class ValidateContentTest extends TestCase
         $this->assertCount(1, $problems);
         $this->assertStringStartsWith('content/collections/pages/broken.md: Duplicate key "title"', $problems[0]);
     }
+
+    public function test_block_partial_may_be_antlers_or_blade(): void
+    {
+        $antlers = resource_path('views/blocks/rich_text.antlers.html');
+        $blade = resource_path('views/blocks/rich_text.blade.php');
+        $command = $this->app->make(ValidateContent::class);
+
+        $this->assertSame([], $command->blockPartialProblems());
+
+        File::move($antlers, $blade);
+        $this->assertSame([], $command->blockPartialProblems());
+
+        File::delete($blade);
+        $this->assertSame(
+            ["page-builder set 'rich_text' has no block partial (expected resources/views/blocks/rich_text.antlers.html or .blade.php)"],
+            $command->blockPartialProblems(),
+        );
+    }
 }
