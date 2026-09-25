@@ -81,6 +81,13 @@ runtime and reviews every change on the `staging` preview — so that round-trip
 auto-deploy; and if your platform lets you, skip the asset rebuild when a push only touched `content/`
 (nothing under `resources/`), so content edits redeploy in seconds instead of waiting on a full build.
 
+**Control Panel saves.** If editors also use the Control Panel with Statamic's git automation
+(`STATAMIC_GIT_ENABLED=true`, `STATAMIC_GIT_PUSH=true`), every save becomes its own commit and push.
+The kit's `config/statamic/git.php` prefixes those commits with `[BOT]`, and CI skips the full
+`validate-and-test` job for them so a busy editing day doesn't use up your GitHub Actions minutes.
+The path allowlist still checks every commit, and the next agent or developer push validates all
+content again.
+
 **Now you know the preview URL** — re-run `php artisan agentic:setup`, fill in the preview URL and
 the repository URL this time (they land in the agent's brief and the hand-over prompt; your other
 answers keep their values), and commit. Until then the agent can only tell the editor "ask the

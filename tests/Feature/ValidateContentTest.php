@@ -2,6 +2,8 @@
 
 namespace Tests\Feature;
 
+use App\Console\Commands\ValidateContent;
+use Illuminate\Support\Facades\File;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
 use Statamic\Facades\Nav;
@@ -104,5 +106,18 @@ class ValidateContentTest extends TestCase
         $this->artisan('content:validate')
             ->expectsOutputToContain('no longer exists')
             ->assertFailed();
+    }
+
+    public function test_unparseable_yaml_is_reported_per_file(): void
+    {
+        $root = "{$this->tempContent}/syntax";
+        File::ensureDirectoryExists("{$root}/collections/pages");
+        File::put("{$root}/collections/pages/good.md", "---\ntitle: Fine\n---\n");
+        File::put("{$root}/collections/pages/broken.md", "---\ntitle: One\ntitle: Two\n---\n");
+
+        $problems = $this->app->make(ValidateContent::class)->syntaxProblems($root);
+
+        $this->assertCount(1, $problems);
+        $this->assertStringStartsWith('content/collections/pages/broken.md: Duplicate key "title"', $problems[0]);
     }
 }
