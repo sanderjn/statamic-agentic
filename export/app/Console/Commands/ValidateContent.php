@@ -11,8 +11,10 @@ use Statamic\Facades\Fieldset;
 use Statamic\Facades\GlobalSet;
 use Statamic\Facades\Nav;
 use Statamic\Facades\Term;
+use Statamic\Facades\YAML;
 use Statamic\Fields\Field;
 use Statamic\Fields\Fields;
+use Statamic\Yaml\ParseException;
 
 class ValidateContent extends Command
 {
@@ -26,9 +28,13 @@ class ValidateContent extends Command
 
     public function handle(): int
     {
-        $problems = $this->collectProblems();
-        $problems = [...$problems, ...$this->blockPartialProblems()];
-        $problems = [...$problems, ...$this->navProblems()];
+        // A file that doesn't parse takes down the whole Stache, so report those
+        // per file before any check that has to load it.
+        $problems = $this->syntaxProblems();
+
+        if ($problems === []) {
+            $problems = [...$this->collectProblems(), ...$this->blockPartialProblems(), ...$this->navProblems()];
+        }
 
         if ($problems === []) {
             $this->info('All content is valid.');
@@ -42,6 +48,35 @@ class ValidateContent extends Command
         }
 
         return self::FAILURE;
+    }
+
+    /**
+     * @return array<int, string>
+     */
+    public function syntaxProblems(?string $contentPath = null): array
+    {
+        $contentPath ??= base_path('content');
+        $problems = [];
+
+        foreach (File::directories($contentPath) as $directory) {
+            if (str_starts_with(basename($directory), '.')) {
+                continue;
+            }
+
+            foreach (File::allFiles($directory) as $file) {
+                if (! in_array($file->getExtension(), ['md', 'yaml'], true)) {
+                    continue;
+                }
+
+                try {
+                    YAML::file($file->getPathname())->parse();
+                } catch (ParseException $e) {
+                    $problems[] = 'content/'.basename($directory).'/'.$file->getRelativePathname().": {$e->getMessage()}";
+                }
+            }
+        }
+
+        return $problems;
     }
 
     /**

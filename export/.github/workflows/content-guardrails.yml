@@ -64,7 +64,10 @@ jobs:
 
   validate-and-test:
     name: validate-and-test
-    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/staging'
+    # Control Panel saves (Statamic git automation, commits prefixed [BOT] in config/statamic/git.php)
+    # skip this job: each save is its own push and would burn Actions minutes. The next non-bot push
+    # validates all content again, and path-allowlist still checks every commit.
+    if: github.event_name == 'pull_request' || (github.ref == 'refs/heads/staging' && !startsWith(github.event.head_commit.message, '[BOT]'))
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
@@ -92,7 +95,27 @@ jobs:
           php artisan content:catalog
           git diff --exit-code content/agent-reference.md
       - name: Validate content
-        run: php artisan content:validate
+        # A CP action on staging can land as several commits seconds apart (e.g. an asset
+        # delete, then the reference cleanup), so an in-between commit may fail on its own.
+        # When staging has already moved on, the newer commit's run is the one that counts.
+        run: |
+          if php artisan content:validate; then
+            exit 0
+          fi
+          if [ "$GITHUB_EVENT_NAME" = "push" ]; then
+            head="$(git ls-remote origin "$GITHUB_REF" | cut -f1)"
+            if [ -n "$head" ] && [ "$head" != "$GITHUB_SHA" ]; then
+              # A [BOT] head skips this job, so it would never validate this content.
+              git fetch -q --depth=1 origin "$head"
+              if git log -1 --format=%s FETCH_HEAD | grep -q '^\[BOT\]'; then
+                echo "::error::Content invalid at $GITHUB_SHA and $GITHUB_REF moved on to a [BOT] commit, which is not validated."
+                exit 1
+              fi
+              echo "::warning::Content invalid at $GITHUB_SHA, but $GITHUB_REF has moved on to $head; that run validates the newer content."
+              exit 0
+            fi
+          fi
+          exit 1
       - name: Check code style
         run: |
           # scope to kit code; a fresh Statamic skeleton isn't pint-clean under the default preset
