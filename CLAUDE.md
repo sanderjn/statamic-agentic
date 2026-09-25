@@ -23,7 +23,7 @@ There is no test runner or linter defined in this repo's manifests.
 - `.claude/settings.json` — deny-rules blocking agent writes to `app/`, `config/`, `resources/`, CI, manifests.
 - `.github/workflows/content-guardrails.yml` — CI enforcing content-only client commits + maintainer-only `main`.
 
-`starter-kit.yaml` lists exported paths; `SETUP.md` (also exported) is the install checklist. Root `README.md` explains the whole design.
+`starter-kit.yaml` lists exported paths; `SETUP.md` (also exported) is the install checklist. Root `README.md` is the short pitch; `docs/how-it-works.md` explains the whole design.
 
 ## Conventions
 - To add a block: add a `set` to `page_builder.yaml`, add the matching `blocks/<handle>.antlers.html`, then run `content:catalog` + `content:validate`. No switch statement or second registry.
