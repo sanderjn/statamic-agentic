@@ -3,10 +3,15 @@
 **Let your client edit their Statamic site by talking to an AI agent, without letting it break
 anything.**
 
-Agentic is a Statamic starter kit. You build the site on a replicator page builder, the block-based
-setup many Statamic sites already use. Your client describes changes in plain language to Claude
-Code, the agent edits the content, and a preview URL updates. When they say "publish", you get one
-pull request to approve.
+Agentic is a Statamic starter kit. Your client describes changes in plain language to Claude Code,
+the agent edits the content, and a preview URL updates. When they say "publish", you get one pull
+request to approve.
+
+It asks one thing of your site: pages are built with a replicator page builder, the block-based
+setup many Statamic sites already use. That is what keeps the agent safe. It can only compose pages
+from the blocks you defined and fill in their fields, so it never writes markup or invents a layout,
+and every edit can be checked against your blueprints. Everything else is up to you: which blocks
+you make, how they look, Antlers or Blade, your CSS and front-end tooling.
 
 ## What that looks like
 
@@ -59,9 +64,8 @@ The kit has exactly one opinion: pages are built from blocks, the sets of a sing
 fieldset (`resources/fieldsets/page_builder.yaml`). Add a set, add a matching
 `resources/views/blocks/<handle>.antlers.html` (or `.blade.php`), regenerate the catalogue. The
 agent's reference, the validation, the Control Panel and the front-end rendering all derive from
-that one file: no switch statement, no second registry. Everything else is yours. The kit ships one example block and a
-minimal layout; design the blocks, templates and front end however you like and the agentic layer
-rides along.
+that one file: no switch statement, no second registry. The kit ships one example block and a
+minimal layout for you to replace.
 
 **Antlers or Blade.** The agent only edits content, so the kit doesn't care how you render it. The
 shipped views are Antlers; if you work in Blade, replace the five small views in `resources/views/`
