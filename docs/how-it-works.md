@@ -89,8 +89,8 @@ point, wires each page into the page tree and writes the copy in the site's voic
 Blocks are defined in one place, the `page_builder` fieldset, and everything else derives from it:
 
 1. Add a `set` to `resources/fieldsets/page_builder.yaml`.
-2. Add `resources/views/blocks/<set-handle>.antlers.html`. **The filename must equal the set
-   handle.**
+2. Add `resources/views/blocks/<set-handle>.antlers.html`, or `.blade.php` if you work in Blade.
+   **The filename must equal the set handle.**
 3. Run `php artisan content:catalog` and `php artisan content:validate`.
 
 That's the whole contract. The agent's catalogue, the validation rules, the Control Panel and the

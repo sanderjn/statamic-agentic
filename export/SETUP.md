@@ -165,7 +165,8 @@ and every later edit sounds the way they want.
 ## Adding your own blocks
 
 1. Add a `set` to `resources/fieldsets/page_builder.yaml`.
-2. Add `resources/views/blocks/<set-handle>.antlers.html` (the filename MUST equal the set handle).
+2. Add `resources/views/blocks/<set-handle>.antlers.html` or `.blade.php` (the filename MUST equal
+   the set handle).
 3. Run `php artisan content:catalog` and `php artisan content:validate`.
 
 That is the whole contract — the agent, validation, and rendering all derive from the fieldset.

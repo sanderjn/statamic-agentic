@@ -4,7 +4,7 @@ return [
     // Fieldset the catalog + block-partial check read as the source of truth.
     'page_builder_fieldset' => 'page_builder',
 
-    // resources/views/<blocks_view_path>/<set-handle>.antlers.html
+    // resources/views/<blocks_view_path>/<set-handle>.antlers.html (or .blade.php)
     'blocks_view_path' => 'blocks',
 
     // Containers whose files are committed to the repo and can be existence-checked.

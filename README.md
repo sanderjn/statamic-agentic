@@ -57,11 +57,23 @@ and one email to hand over to the editor.
 
 The kit has exactly one opinion: pages are built from blocks, the sets of a single replicator
 fieldset (`resources/fieldsets/page_builder.yaml`). Add a set, add a matching
-`resources/views/blocks/<handle>.antlers.html`, regenerate the catalogue. The agent's reference, the
-validation, the Control Panel and the front-end rendering all derive from that one file: no switch
-statement, no second registry. Everything else is yours. The kit ships one example block and a
+`resources/views/blocks/<handle>.antlers.html` (or `.blade.php`), regenerate the catalogue. The
+agent's reference, the validation, the Control Panel and the front-end rendering all derive from
+that one file: no switch statement, no second registry. Everything else is yours. The kit ships one example block and a
 minimal layout; design the blocks, templates and front end however you like and the agentic layer
 rides along.
+
+**Antlers or Blade.** The agent only edits content, so the kit doesn't care how you render it. The
+shipped views are Antlers; if you work in Blade, replace the five small views in `resources/views/`
+and loop the page builder like this:
+
+```blade
+@foreach ($page_builder as $set)
+    @include('blocks.' . $set->type)
+@endforeach
+```
+
+Each block partial then reads its fields from `$set` (e.g. `{!! $set->body !!}`).
 
 The edit guard also applies to your own Claude Code sessions. Set `AGENTIC_DEVELOPER=1` (via `env`
 in an untracked `.claude/settings.local.json`) to lift it while you build.
