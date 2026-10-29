@@ -28,3 +28,7 @@ There is no test runner or linter defined in this repo's manifests.
 ## Conventions
 - To add a block: add a `set` to `page_builder.yaml`, add the matching `blocks/<handle>.antlers.html` (or `.blade.php`), then run `content:catalog` + `content:validate`. No switch statement or second registry.
 - Branch topology is literal `staging` (work) → `main` (release); changing names means updating both `config/agentic.php` and the CI workflow.
+
+## Attribution
+
+- Never add attribution: no `Co-Authored-By` trailer, no "Generated with/by Claude Code", no session links and no other reference to Claude, AI or Anthropic in commits, PRs, issues, comments, docs or code.
