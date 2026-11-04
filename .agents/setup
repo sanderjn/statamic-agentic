@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+cd "$(dirname "${BASH_SOURCE[0]}")/.."
+SECONDS=0
+
+echo 'Preparing PHP 8.3 and extensions...'
+packages=(ca-certificates curl unzip php8.3-cli php8.3-curl php8.3-gd php8.3-mbstring php8.3-xml php8.3-zip php8.3-sqlite3 php8.3-bcmath php8.3-intl)
+missing=()
+for package in "${packages[@]}"; do
+    if ! dpkg-query -W -f='${Status}' "$package" 2>/dev/null | grep -qx 'install ok installed'; then
+        missing+=("$package")
+    fi
+done
+
+if ((${#missing[@]})); then
+    if [[ ! -f /usr/share/keyrings/debsuryorg-archive-keyring.gpg ]]; then
+        keyring=$(mktemp --suffix=.deb)
+        trap 'rm -f "$keyring"' EXIT
+        curl --fail --silent --show-error --location https://packages.sury.org/debsuryorg-archive-keyring.deb -o "$keyring"
+        sudo dpkg -i "$keyring"
+        rm -f "$keyring"
+        trap - EXIT
+    fi
+    source='deb [signed-by=/usr/share/keyrings/debsuryorg-archive-keyring.gpg] https://packages.sury.org/php/ bookworm main'
+    if [[ ! -f /etc/apt/sources.list.d/php.list ]] || ! grep -Fxq "$source" /etc/apt/sources.list.d/php.list; then
+        printf '%s\n' "$source" | sudo tee /etc/apt/sources.list.d/php.list >/dev/null
+    fi
+    sudo apt-get update -qq
+    sudo env DEBIAN_FRONTEND=noninteractive apt-get install -y --no-install-recommends "${missing[@]}"
+fi
+sudo update-alternatives --set php /usr/bin/php8.3
+php --version | head -n 1
+echo "PHP ready (${SECONDS}s elapsed)."
+
+if ! command -v composer >/dev/null 2>&1; then
+    echo 'Installing Composer with installer checksum verification...'
+    installer=$(mktemp)
+    trap 'rm -f "$installer"' EXIT
+    curl --fail --silent --show-error --location https://getcomposer.org/installer -o "$installer"
+    expected=$(curl --fail --silent --show-error --location https://composer.github.io/installer.sig)
+    printf '%s  %s\n' "$expected" "$installer" | sha384sum --check --status
+    sudo php "$installer" --2 --install-dir=/usr/local/bin --filename=composer
+    rm -f "$installer"
+    trap - EXIT
+fi
+
+# This is the kit source, not an installed site. Its root Composer dependencies
+# provide Testbench, Statamic, PHPUnit, and Pint; export/package.json is for sites.
+# composer.lock is intentionally ignored here. Retain the locally resolved lock
+# and vendor tree in snapshots; Composer cheaply checks them on subsequent runs.
+echo 'Installing kit development dependencies...'
+composer install --no-interaction --prefer-dist --no-progress
+composer check-platform-reqs
+echo "Setup finished (${SECONDS}s elapsed)."

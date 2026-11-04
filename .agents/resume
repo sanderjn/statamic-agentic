@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+# No services or per-thread authentication are needed by the kit test suite.
+# PHP, Composer, and vendor dependencies persist in the orb snapshot.
