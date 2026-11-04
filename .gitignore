@@ -2,5 +2,6 @@
 composer.lock
 .phpunit.result.cache
 .phpunit.cache
+.amp/portals/
 /docs/*
 !/docs/how-it-works.md
