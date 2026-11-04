@@ -6,6 +6,7 @@ use App\Console\Commands\ValidateContent;
 use Illuminate\Support\Facades\File;
 use Statamic\Facades\Collection;
 use Statamic\Facades\Entry;
+use Statamic\Facades\Fieldset;
 use Statamic\Facades\Nav;
 use Statamic\Facades\Site;
 use Tests\TestCase;
@@ -137,5 +138,41 @@ class ValidateContentTest extends TestCase
             ["page-builder set 'rich_text' has no block partial (expected resources/views/blocks/rich_text.antlers.html or .blade.php)"],
             $command->blockPartialProblems(),
         );
+    }
+
+    public function test_custom_page_builder_field_still_requires_its_block_partials(): void
+    {
+        Fieldset::setDirectory($this->tempContent.'/fieldsets');
+        Fieldset::make('layout')->setContents(['fields' => [
+            ['handle' => 'sections', 'field' => ['type' => 'replicator', 'sets' => [
+                'banner' => ['fields' => []],
+            ]]],
+        ]])->save();
+        config()->set('agentic.page_builder_fieldset', 'layout');
+        config()->set('agentic.page_builder_field', 'sections');
+
+        $this->artisan('content:validate')
+            ->expectsOutputToContain("page-builder set 'banner' has no block partial")
+            ->assertFailed();
+    }
+
+    public function test_alternative_rendering_skips_only_the_block_partial_convention(): void
+    {
+        File::delete(resource_path('views/blocks/rich_text.antlers.html'));
+        $this->makeEntry(['title' => 'Home', 'page_builder' => []]);
+        config()->set('agentic.catalog_blueprints', ['globals.company']);
+
+        $this->artisan('content:validate')
+            ->expectsOutputToContain("page-builder set 'rich_text' has no block partial")
+            ->assertFailed();
+
+        config()->set('agentic.blocks_view_path', null);
+        $this->artisan('content:validate')->assertSuccessful();
+
+        $this->makeEntry(['page_builder' => [['type' => 'not_a_real_block']]], 'invalid');
+        $this->artisan('content:validate')
+            ->expectsOutputToContain('required')
+            ->expectsOutputToContain("unknown type 'not_a_real_block'")
+            ->assertFailed();
     }
 }

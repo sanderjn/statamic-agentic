@@ -5,3 +5,4 @@ composer.lock
 .amp/portals/
 /docs/*
 !/docs/how-it-works.md
+!/docs/existing-sites.md

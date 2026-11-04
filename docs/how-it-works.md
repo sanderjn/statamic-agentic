@@ -26,6 +26,21 @@ plain text, so an agent can edit that content directly. Two things make it trust
 The shipped root `CLAUDE.md` imports `content/AGENTS.md`, so Claude Code picks up the brief
 automatically. With other agents, point them at `content/AGENTS.md` yourself.
 
+### Using an existing content model
+
+The default catalogue still reads the starter's page-builder fieldset. Set `catalog_blueprints`
+in `config/agentic.php` to a non-empty list of fully qualified blueprint handles to document those
+blueprints instead. Statamic resolves their fields and imports; the generator includes instructions,
+required markers, option keys, relationship targets, and nested Replicator/Bard sets and Group/Grid
+fields. A missing blueprint fails generation without replacing the previous reference.
+
+Catalogue selection is not authorization and does not limit validation. The developer still defines
+the editable paths and site-specific creation/publishing instructions. For sites that render blocks
+differently, `blocks_view_path: null` disables only the starter's partial-filename convention, not
+blueprint validation. The [existing-site guide](existing-sites.md) covers minimal integration without
+replacing your frontend, templates, providers, or asset pipeline. Neither integration nor schema
+discovery requires AI.
+
 ## What catches mistakes
 
 Statamic does **not** validate flat-file content when it loads: a malformed edit renders wrong or
