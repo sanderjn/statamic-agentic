@@ -7,11 +7,11 @@ Agentic is a Statamic starter kit. Your client describes changes in plain langua
 the agent edits the content, and a preview URL updates. When they say "publish", you get one pull
 request to approve.
 
-It asks one thing of your site: pages are built with a replicator page builder, the block-based
-setup many Statamic sites already use. That is what keeps the agent safe. It can only compose pages
-from the blocks you defined and fill in their fields, so it never writes markup or invents a layout,
-and every edit can be checked against your blueprints. Everything else is up to you: which blocks
-you make, how they look, Antlers or Blade, your CSS and front-end tooling.
+The starter builds pages with a replicator page builder, the block-based setup many Statamic sites
+already use. The agent composes pages from the blocks you defined and fills in their fields rather
+than writing markup or inventing a layout, and edits can be checked against your blueprints.
+Already have a site? You can integrate the content tools separately and generate a reference from
+selected existing blueprints, without adopting the starter's frontend or page builder.
 
 ## What that looks like
 
@@ -46,7 +46,11 @@ Agentic exists so this call never happens.*
 
     statamic new my-site sanderjn/statamic-agentic
 
-…or in an existing Statamic project:
+To add just the content tools to an existing site, follow the
+**[existing-site integration guide](docs/existing-sites.md)**. It preserves your frontend,
+templates, content model, and asset pipeline; no AI is needed for the integration or discovery.
+
+To deliberately install the full starter scaffold into an existing Statamic project instead:
 
     php please starter-kit:install sanderjn/statamic-agentic
 
@@ -60,12 +64,18 @@ and one email to hand over to the editor.
 
 ## For developers
 
-The kit has exactly one opinion: pages are built from blocks, the sets of a single replicator
-fieldset (`resources/fieldsets/page_builder.yaml`). Add a set, add a matching
+By default, pages are built from blocks, the sets of a single replicator fieldset
+(`resources/fieldsets/page_builder.yaml`). Add a set, add a matching
 `resources/views/blocks/<handle>.antlers.html` (or `.blade.php`), regenerate the catalogue. The
 agent's reference, the validation, the Control Panel and the front-end rendering all derive from
 that one file: no switch statement, no second registry. The kit ships one example block and a
 minimal layout for you to replace.
+
+**Existing blueprints.** Set `catalog_blueprints` in `config/agentic.php` to document selected
+collection, global, taxonomy, and navigation blueprints instead. Imported fieldsets and nested
+fields are resolved from your site. This selects reference material, not editing permissions;
+validation still checks all content. See the [integration guide](docs/existing-sites.md) for the
+configuration and site-specific instructions to supply.
 
 **Antlers or Blade.** The agent only edits content, so the kit doesn't care how you render it. The
 shipped views are Antlers; if you work in Blade, replace the five small views in `resources/views/`

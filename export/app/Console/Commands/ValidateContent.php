@@ -355,15 +355,20 @@ class ValidateContent extends Command
      */
     public function blockPartialProblems(): array
     {
+        $dir = config('agentic.blocks_view_path');
+        if ($dir === null) {
+            return [];
+        }
+
         $handle = config('agentic.page_builder_fieldset');
         if (! $fieldset = Fieldset::find($handle)) {
             return [];
         }
-        if (! $field = $fieldset->fields()->all()->get($handle)) {
+        $fieldHandle = config('agentic.page_builder_field') ?? $handle;
+        if (! $field = $fieldset->fields()->all()->get($fieldHandle)) {
             return [];
         }
 
-        $dir = config('agentic.blocks_view_path');
         $problems = [];
 
         foreach (array_keys($this->flattenSets($field->get('sets', []))) as $setHandle) {

@@ -4,7 +4,17 @@ return [
     // Fieldset the catalog + block-partial check read as the source of truth.
     'page_builder_fieldset' => 'page_builder',
 
-    // resources/views/<blocks_view_path>/<set-handle>.antlers.html (or .blade.php)
+    // Field inside that fieldset; null uses the fieldset handle, as in the starter.
+    'page_builder_field' => null,
+
+    // Optional fully qualified blueprint handles, e.g. collections.pages.page,
+    // collections.posts.article, globals.company, taxonomies.tags, navigation.main.
+    // When non-empty, catalog these blueprints instead of the page-builder fieldset.
+    // This selects documentation sources, NOT permissions or validation scope.
+    'catalog_blueprints' => [],
+
+    // resources/views/<blocks_view_path>/<set-handle>.antlers.html (or .blade.php).
+    // Set to null to skip this rendering convention on an existing site.
     'blocks_view_path' => 'blocks',
 
     // Containers whose files are committed to the repo and can be existence-checked.
