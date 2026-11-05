@@ -46,9 +46,9 @@ Agentic exists so this call never happens.*
 
     statamic new my-site sanderjn/statamic-agentic
 
-To add just the content tools to an existing site, follow the
-**[existing-site integration guide](docs/existing-sites.md)**. It preserves your frontend,
-templates, content model, and asset pipeline; no AI is needed for the integration or discovery.
+**Already have a site?** Give your coding agent the
+**[existing-site integration guide](docs/existing-sites.md)** and review its changes—or follow it
+yourself. Keep your frontend, templates, content model, and asset pipeline.
 
 To deliberately install the full starter scaffold into an existing Statamic project instead:
 
